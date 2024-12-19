@@ -1,4 +1,4 @@
-export const abi =  [
+export const abi = [
     {
       "type": "function",
       "name": "UPGRADE_INTERFACE_VERSION",
@@ -166,7 +166,13 @@ export const abi =  [
     {
       "type": "function",
       "name": "getTables",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "_manager",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
       "outputs": [
         {
           "name": "",

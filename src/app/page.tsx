@@ -8,7 +8,7 @@ function App() {
   const { connectors, connect, status, error } = useConnect();
   const { writeContract } = useWriteContract();
   const { disconnect } = useDisconnect();
-  const address = '0x6F423B744b2eb0B577c7e99E25E3f77F58d35De1';
+  const address = '0xD586F86d6D573AbA52275A2997091b8d4671543f';
 
   useWatchContractEvent({
     address,
@@ -22,6 +22,7 @@ function App() {
     address,
     abi,
     functionName: 'getTables',
+    args: [account.address]
   });
 
   const { data: table, error: err1 } = useReadContract({

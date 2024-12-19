@@ -8,26 +8,33 @@ function App() {
   const { connectors, connect, status, error } = useConnect();
   const { writeContract } = useWriteContract();
   const { disconnect } = useDisconnect();
-  const address = '0x844058BD98c93D111ea038BDdbEC5D2992F5C2D9';
+  const address = '0x6F423B744b2eb0B577c7e99E25E3f77F58d35De1';
 
+  useWatchContractEvent({
+    address,
+    abi,
+    eventName: 'TableCreated',
+    onLogs: (logs) => console.log("Table Created", logs),
+    onError: (error) => console.log("Error", error)
+  })
 
-  // useWatchContractEvent({
-  //   address,
-  //   abi,
-  //   eventName: 'TableCreated',
-  //   onLogs: (logs) => console.log("Table Created", logs),
-  //   onError: (error) => console.log("Error", error)
-  // })
+  const { data: tables, error: err } = useReadContract({
+    address,
+    abi,
+    functionName: 'getTables',
+  });
 
-  const { data: tables } = useReadContract({
+  const { data: table, error: err1 } = useReadContract({
     address,
     abi,
     functionName: 's_managerToTables',
-    args: [account.address]
-  })
+    args: [account.address, 0]
+  });
 
-  console.log("TABLES", tables);
-  console.log("ADDress", account.address);
+  console.log("Address: ", account.address);
+  console.log("Tables: ", tables);
+  console.log("Table: ", table);
+  console.log("error", err);
 
   return (
     <>
@@ -48,20 +55,41 @@ function App() {
               Disconnect
             </button>
             { `${tables}` }
-            <button type="button" onClick={() => {
+            <button 
+              type="button" 
+              onClick={async () => {
               // TODO: show modal with all options
 
-              writeContract({ 
-                abi,
-                address,
-                functionName: 'createTable',
-                args: [
-                  7,
-                  [0,100],
-                  [8, true, true, 1, 3, true, true, true, true, false],
-                  '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
-                ]
-              });
+              writeContract(
+                { 
+                  abi,
+                  address,
+                  functionName: 'createTable',
+                  args: [
+                    7, // _maxPlayers
+                    [ // _betRange
+                      0, // min
+                      100 // max
+                    ], 
+                    [  // _rules
+                      2, // deckCount
+                      false, // dealerHitOnSoft17
+                      false, // allowDoubleAfterSplit
+                      1, // doubleRule
+                      3, // maxResplitHands
+                      true, // allowResplitAces
+                      true, // allowHitSplitAces
+                      true, // allowLateSurrender
+                      true, // allowInsurance
+                      false // sixToFive
+                    ],
+                    '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d' // _token
+                  ],
+                },
+                {
+                  onError: (e) => console.log(e)
+                }
+              );
             }}>
               Create Table
             </button>

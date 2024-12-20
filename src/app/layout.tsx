@@ -27,8 +27,7 @@ export default function RootLayout(props: { children: ReactNode }) {
       <body className={inter.className}>
         <Providers initialState={initialState}>
           <div className="flex">
-            <Sidebar />
-            <div className="p-20">{props.children}</div>
+            <Sidebar>{props.children}</Sidebar>
           </div>
         </Providers>
       </body>

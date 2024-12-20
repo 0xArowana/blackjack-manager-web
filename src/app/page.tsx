@@ -2,8 +2,6 @@
 
 import {
   useAccount,
-  useConnect,
-  useDisconnect,
   useWriteContract,
   useReadContract,
   useReadContracts,
@@ -16,9 +14,8 @@ import Modal from "./ui/Modal";
 
 function App() {
   const account = useAccount();
-  const { connectors, connect, status, error } = useConnect();
+  const isConnected = account.status === "connected";
   const { writeContract } = useWriteContract();
-  const { disconnect } = useDisconnect();
   const address = "0xff844a27C2C80649Cb76d56f9A36c3Cd274Dfb49";
   const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>();
   const [showCreateTable, setShowCreateTable] = useState(false);
@@ -91,68 +88,45 @@ function App() {
   return (
     <>
       <div>
-        <div>
-          <h2>Account</h2>
-
-          <div>
-            status: {account.status}
-            <br />
-            addresses: {JSON.stringify(account.addresses)}
-            <br />
-            chainId: {account.chainId}
-          </div>
-
-          {account.status === "connected" && (
-            <>
-              <button type="button" onClick={() => disconnect()}>
-                Disconnect
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  document.getElementById("create_table_modal").showModal();
-                }}
-              >
-                Create Table
-              </button>
-            </>
-          )}
-        </div>
-
-        <div>
-          <h2>Connect</h2>
-          {connectors.map((connector) => (
-            <button key={connector.uid} onClick={() => connect({ connector })}>
-              {connector.name}
+        {isConnected ? (
+          <>
+            <div>
+              <h1>Tables</h1>
+              {tableInfo?.map((table, index) => {
+                const info: any = table.result;
+                return (
+                  <a
+                    className="flex flex-col max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
+                    key={`table-card-${index}`}
+                    href="#"
+                  >
+                    <div>
+                      <div className="b">Token</div>
+                      {info[0]}
+                    </div>
+                    <div>
+                      <h3>Players</h3>
+                      {info[1]}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                document.getElementById("create_table_modal").showModal();
+              }}
+            >
+              Create Table
             </button>
-          ))}
-          <div>{status}</div>
-          <div>{error?.message}</div>
-        </div>
-        <div>
-          <h1>Tables</h1>
-          {tableInfo?.map((table, index) => {
-            const info: any = table.result;
-            return (
-              <a
-                className="flex flex-col max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
-                key={`table-card-${index}`}
-                href="#"
-              >
-                <div>
-                  <div className="b">Token</div>
-                  {info[0]}
-                </div>
-                <div>
-                  <h3>Players</h3>
-                  {info[1]}
-                </div>
-              </a>
-            );
-          })}
-        </div>
+          </>
+        ) : (
+          <div>Please connect your wallet</div>
+        )}
       </div>
+
       <dialog id="create_table_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Hello!</h3>

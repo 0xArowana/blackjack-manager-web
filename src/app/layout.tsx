@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import { type ReactNode } from "react";
 import { cookieToInitialState } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { getConfig } from "../wagmi";
 import { Providers } from "./providers";
@@ -26,9 +27,12 @@ export default function RootLayout(props: { children: ReactNode }) {
     <html lang="en">
       <body className={inter.className}>
         <Providers initialState={initialState}>
-          <div className="flex">
-            <Sidebar>{props.children}</Sidebar>
-          </div>
+          <Sidebar>
+            <div className="absolute top-4 right-4">
+              <ConnectButton />
+            </div>
+            {props.children}
+          </Sidebar>
         </Providers>
       </body>
     </html>

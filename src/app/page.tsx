@@ -1,41 +1,61 @@
 'use client'
+/* global BigInt */
 
-import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract, useWatchContractEvent } from 'wagmi';
-import { abi } from '../abi';
+import { 
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useWriteContract,
+  useReadContract,
+  useReadContracts,
+  useWatchContractEvent,
+} from 'wagmi';
+import { pitAbi, tableAbi } from '../abi';
+import { useEffect, useState } from 'react';
+import { ContractFunctionParameters } from 'viem';
 
 function App() {
   const account = useAccount();
   const { connectors, connect, status, error } = useConnect();
   const { writeContract } = useWriteContract();
   const { disconnect } = useDisconnect();
-  const address = '0xD586F86d6D573AbA52275A2997091b8d4671543f';
+  const address = '0xff844a27C2C80649Cb76d56f9A36c3Cd274Dfb49';
+  const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>([]);
 
-  useWatchContractEvent({
-    address,
-    abi,
-    eventName: 'TableCreated',
-    onLogs: (logs) => console.log("Table Created", logs),
-    onError: (error) => console.log("Error", error)
-  })
+  // useWatchContractEvent({
+  //   address,
+  //   abi: pitAbi,
+  //   eventName: 'TableCreated',
+  //   onLogs: (logs) => console.log("Table Created", logs),
+  //   onError: (error) => console.log("Error", error)
+  // })
 
   const { data: tables, error: err } = useReadContract({
     address,
-    abi,
+    abi: pitAbi,
     functionName: 'getTables',
     args: [account.address]
   });
 
-  const { data: table, error: err1 } = useReadContract({
-    address,
-    abi,
-    functionName: 's_managerToTables',
-    args: [account.address, 0]
-  });
+  useEffect(() => {
+    const reads: ContractFunctionParameters[] = []; 
+    
+    (tables as string[])?.forEach((address) => {
+      const contract: any = { 
+        address, 
+        abi: tableAbi,
+        functionName: "getTableInfo"
+      };
+      reads.push(contract);
+    });
 
-  console.log("Address: ", account.address);
-  console.log("Tables: ", tables);
-  console.log("Table: ", table);
-  console.log("error", err);
+    setTableReads(reads);
+  }, [tables]);
+
+  const { data: tableInfo } = useReadContracts({ contracts: tableReads });
+
+
+  console.log("TABLE INFO", tableInfo);
 
   return (
     <>
@@ -55,7 +75,6 @@ function App() {
             <button type="button" onClick={() => disconnect()}>
               Disconnect
             </button>
-            { `${tables}` }
             <button 
               type="button" 
               onClick={async () => {
@@ -63,7 +82,7 @@ function App() {
 
               writeContract(
                 { 
-                  abi,
+                  abi: pitAbi,
                   address,
                   functionName: 'createTable',
                   args: [
@@ -111,6 +130,27 @@ function App() {
         ))}
         <div>{status}</div>
         <div>{error?.message}</div>
+      </div>
+
+
+      <div>
+        <h1>Tables</h1>
+        {tableInfo?.map((table) => {
+          const info: any = table.result;
+          return (
+            <div>
+              <div>
+                <h3>Token</h3>
+                {info[0]}
+              </div>
+              <div>
+                <h3>Players</h3>
+                {info[1]}
+              </div>
+            </div>
+          );
+        })}
+
       </div>
     </>
   )

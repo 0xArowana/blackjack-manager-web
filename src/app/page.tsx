@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { 
+import {
   useAccount,
   useConnect,
   useDisconnect,
@@ -8,18 +8,20 @@ import {
   useReadContract,
   useReadContracts,
   useWatchContractEvent,
-} from 'wagmi';
-import { pitAbi, tableAbi } from '../abi';
-import { useEffect, useState } from 'react';
-import { ContractFunctionParameters } from 'viem';
+} from "wagmi";
+import { pitAbi, tableAbi } from "../abi";
+import { useEffect, useState } from "react";
+import { ContractFunctionParameters } from "viem";
 
 function App() {
   const account = useAccount();
   const { connectors, connect, status, error } = useConnect();
   const { writeContract } = useWriteContract();
   const { disconnect } = useDisconnect();
-  const address = '0xff844a27C2C80649Cb76d56f9A36c3Cd274Dfb49';
-  const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>([]);
+  const address = "0xff844a27C2C80649Cb76d56f9A36c3Cd274Dfb49";
+  const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>(
+    []
+  );
 
   // useWatchContractEvent({
   //   address,
@@ -32,18 +34,18 @@ function App() {
   const { data: tables, error: err } = useReadContract({
     address,
     abi: pitAbi,
-    functionName: 'getTables',
-    args: [account.address]
+    functionName: "getTables",
+    args: [account.address],
   });
 
   useEffect(() => {
-    const reads: ContractFunctionParameters[] = []; 
-    
+    const reads: ContractFunctionParameters[] = [];
+
     (tables as string[])?.forEach((address) => {
-      const contract: any = { 
-        address, 
+      const contract: any = {
+        address,
         abi: tableAbi,
-        functionName: "getTableInfo"
+        functionName: "getTableInfo",
       };
       reads.push(contract);
     });
@@ -53,11 +55,8 @@ function App() {
 
   const { data: tableInfo } = useReadContracts({ contracts: tableReads });
 
-
-  console.log("TABLE INFO", tableInfo);
-
   return (
-    <>
+    <div>
       <div>
         <h2>Account</h2>
 
@@ -69,47 +68,51 @@ function App() {
           chainId: {account.chainId}
         </div>
 
-        {account.status === 'connected' && (
+        {account.status === "connected" && (
           <>
             <button type="button" onClick={() => disconnect()}>
               Disconnect
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4"
               onClick={async () => {
-              // TODO: show modal with all options
+                // TODO: show modal with all options
 
-              writeContract(
-                { 
-                  abi: pitAbi,
-                  address,
-                  functionName: 'createTable',
-                  args: [
-                    7, // _maxPlayers
-                    [ // _betRange
-                      0, // min
-                      100 // max
-                    ], 
-                    [  // _rules
-                      2, // deckCount
-                      false, // dealerHitOnSoft17
-                      false, // allowDoubleAfterSplit
-                      1, // doubleRule
-                      3, // maxResplitHands
-                      true, // allowResplitAces
-                      true, // allowHitSplitAces
-                      true, // allowLateSurrender
-                      true, // allowInsurance
-                      false // sixToFive
+                writeContract(
+                  {
+                    abi: pitAbi,
+                    address,
+                    functionName: "createTable",
+                    args: [
+                      7, // _maxPlayers
+                      [
+                        // _betRange
+                        0, // min
+                        100, // max
+                      ],
+                      [
+                        // _rules
+                        2, // deckCount
+                        false, // dealerHitOnSoft17
+                        false, // allowDoubleAfterSplit
+                        1, // doubleRule
+                        3, // maxResplitHands
+                        true, // allowResplitAces
+                        true, // allowHitSplitAces
+                        true, // allowLateSurrender
+                        true, // allowInsurance
+                        false, // sixToFive
+                      ],
+                      "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d", // _token
                     ],
-                    '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d' // _token
-                  ],
-                },
-                {
-                  onError: (e) => console.log(e)
-                }
-              );
-            }}>
+                  },
+                  {
+                    onError: (e) => console.log(e),
+                  }
+                );
+              }}
+            >
               Create Table
             </button>
           </>
@@ -119,32 +122,25 @@ function App() {
       <div>
         <h2>Connect</h2>
         {connectors.map((connector) => (
-          <button
-            key={connector.uid}
-            onClick={() => connect({ connector })}
-            type="button"
-          >
+          <button key={connector.uid} onClick={() => connect({ connector })}>
             {connector.name}
           </button>
         ))}
         <div>{status}</div>
         <div>{error?.message}</div>
       </div>
-
-      <h1 className="text-3xl font-bold underline">Hello, Next.js!</h1>
-
       <div>
         <h1>Tables</h1>
         {tableInfo?.map((table, index) => {
           const info: any = table.result;
           return (
-            <a 
-              href="#"
-              className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+            <a
+              className="flex flex-col max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
               key={`table-card-${index}`}
+              href="#"
             >
               <div>
-                <span>Token</span>
+                <div className="b">Token</div>
                 {info[0]}
               </div>
               <div>
@@ -154,10 +150,9 @@ function App() {
             </a>
           );
         })}
-
       </div>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

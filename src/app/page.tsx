@@ -1,5 +1,4 @@
 'use client'
-/* global BigInt */
 
 import { 
   useAccount,
@@ -132,22 +131,27 @@ function App() {
         <div>{error?.message}</div>
       </div>
 
+      <h1 className="text-3xl font-bold underline">Hello, Next.js!</h1>
 
       <div>
         <h1>Tables</h1>
-        {tableInfo?.map((table) => {
+        {tableInfo?.map((table, index) => {
           const info: any = table.result;
           return (
-            <div>
+            <a 
+              href="#"
+              className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+              key={`table-card-${index}`}
+            >
               <div>
-                <h3>Token</h3>
+                <span>Token</span>
                 {info[0]}
               </div>
               <div>
                 <h3>Players</h3>
                 {info[1]}
               </div>
-            </div>
+            </a>
           );
         })}
 

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
 import { type State, WagmiProvider } from "wagmi";
 import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-
+import Avatar from "./ui/Avatar";
 import { getConfig } from "@/wagmi";
 
 export function Providers(props: {
@@ -22,7 +22,11 @@ export function Providers(props: {
   return (
     <WagmiProvider config={config} initialState={props.initialState}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact" theme={rainbowTheme}>
+        <RainbowKitProvider
+          avatar={Avatar}
+          modalSize="compact"
+          theme={rainbowTheme}
+        >
           {props.children}
         </RainbowKitProvider>
       </QueryClientProvider>

@@ -10,7 +10,8 @@ import {
 import { pitAbi, tableAbi } from "../abi";
 import { useEffect, useState } from "react";
 import { ContractFunctionParameters } from "viem";
-import Modal from "./ui/Modal";
+import { Close } from "./ui/Icons";
+import { BlackJackPayout, DoubleRule, TableRules } from "./lib/definitions";
 
 function App() {
   const account = useAccount();
@@ -18,7 +19,22 @@ function App() {
   const { writeContract } = useWriteContract();
   const address = "0xff844a27C2C80649Cb76d56f9A36c3Cd274Dfb49";
   const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>();
-  const [showCreateTable, setShowCreateTable] = useState(false);
+
+  const defaultRules: TableRules = {
+    deckCount: 8,
+    dealerHitOnSoft17: false,
+    allowDoubleAfterSplit: true,
+    doubleRule: DoubleRule.Any,
+    maxResplitHands: 4,
+    allowResplitAces: false,
+    allowHitSplitAces: false,
+    allowLateSurrender: false,
+    allowInsurance: false,
+    blackJackPayout: BlackJackPayout.ThreeToTwo,
+  };
+
+  const [createTableRules, setCreateTableRules] =
+    useState<TableRules>(defaultRules);
 
   // useWatchContractEvent({
   //   address,
@@ -27,39 +43,6 @@ function App() {
   //   onLogs: (logs) => console.log("Table Created", logs),
   //   onError: (error) => console.log("Error", error)
   // })
-
-  // writeContract(
-  //   {
-  //     abi: pitAbi,
-  //     address,
-  //     functionName: "createTable",
-  //     args: [
-  //       7, // _maxPlayers
-  //       [
-  //         // _betRange
-  //         0, // min
-  //         100, // max
-  //       ],
-  //       [
-  //         // _rules
-  //         2, // deckCount
-  //         false, // dealerHitOnSoft17
-  //         false, // allowDoubleAfterSplit
-  //         1, // doubleRule
-  //         3, // maxResplitHands
-  //         true, // allowResplitAces
-  //         true, // allowHitSplitAces
-  //         true, // allowLateSurrender
-  //         true, // allowInsurance
-  //         false, // sixToFive
-  //       ],
-  //       "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d", // _token
-  //     ],
-  //   },
-  //   {
-  //     onError: (e) => console.log(e),
-  //   }
-  // );
 
   const { data: tables, error: err } = useReadContract({
     address,
@@ -114,9 +97,9 @@ function App() {
             </div>
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary rounded-2xl"
               onClick={() => {
-                document.getElementById("create_table_modal").showModal();
+                document.getElementById("create_table_modal")?.showModal();
               }}
             >
               Create Table
@@ -126,19 +109,56 @@ function App() {
           <div>Please connect your wallet</div>
         )}
       </div>
-
       <dialog id="create_table_modal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Hello!</h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
-          </p>
-          <div className="modal-action">
+        <div className="modal-box flex flex-col">
+          <div className="self-end">
             <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
+              <button>
+                <Close />
+              </button>
             </form>
           </div>
+          <div className="text-2xl font-semibold">Create Table</div>
+          <button
+            type="button"
+            className="btn btn-primary rounded-2xl"
+            onClick={() => {
+              writeContract(
+                {
+                  abi: pitAbi,
+                  address,
+                  functionName: "createTable",
+                  args: [
+                    7, // _maxPlayers
+                    [
+                      // _betRange
+                      0, // min
+                      100, // max
+                    ],
+                    [
+                      // _rules
+                      2, // deckCount
+                      false, // dealerHitOnSoft17
+                      false, // allowDoubleAfterSplit
+                      1, // doubleRule
+                      3, // maxResplitHands
+                      true, // allowResplitAces
+                      true, // allowHitSplitAces
+                      true, // allowLateSurrender
+                      true, // allowInsurance
+                      false, // sixToFive
+                    ],
+                    "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d", // _token
+                  ],
+                },
+                {
+                  onError: (e) => console.log(e),
+                }
+              );
+            }}
+          >
+            Create
+          </button>
         </div>
       </dialog>
     </>

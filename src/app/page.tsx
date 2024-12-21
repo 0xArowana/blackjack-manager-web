@@ -118,7 +118,69 @@ function App() {
               </button>
             </form>
           </div>
-          <div className="text-2xl font-semibold">Create Table</div>
+          <div className="text-2xl font-semibold self-center">Create Table</div>
+          <div className="text-lg pt-4 self-center">Select table rules</div>
+          <div className="px-8 py-12 gap-4">
+            <label className="flex label cursor-pointer items-between">
+              <span>Number of decks</span>
+              <div className="dropdown dropdown-left">
+                <div tabIndex={0} role="button" className="btn m-1">
+                  {createTableRules.deckCount}
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
+                >
+                  <li>
+                    <a>1</a>
+                  </li>
+                  <li>
+                    <a>2</a>
+                  </li>
+                  <li>
+                    <a>4</a>
+                  </li>
+                  <li>
+                    <a>5</a>
+                  </li>
+                  <li>
+                    <a>6</a>
+                  </li>
+                  <li>
+                    <a>8</a>
+                  </li>
+                </ul>
+              </div>
+            </label>
+            <label className="flex label cursor-pointer items-between">
+              <span>Dealer hits on soft 17</span>
+              <input
+                type="checkbox"
+                className="toggle"
+                defaultChecked
+                onChange={(event) => {
+                  setCreateTableRules((rules) => {
+                    rules.dealerHitOnSoft17 = event.target.checked;
+                    return rules;
+                  });
+                }}
+              />
+            </label>
+            <label className="flex label cursor-pointer items-between">
+              <span>Allow double after split</span>
+              <input
+                type="checkbox"
+                className="toggle"
+                defaultChecked
+                onChange={(event) => {
+                  setCreateTableRules((rules) => {
+                    rules.allowDoubleAfterSplit = event.target.checked;
+                    return rules;
+                  });
+                }}
+              />
+            </label>
+          </div>
           <button
             type="button"
             className="btn btn-primary rounded-2xl"

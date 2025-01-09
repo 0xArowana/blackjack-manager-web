@@ -9,7 +9,7 @@ import {
 import { pitAbi, tableAbi } from "../abi";
 import { useEffect, useState } from "react";
 import { ContractFunctionParameters } from "viem";
-import { pitAddress } from "./lib/constants";
+import { pitAddress, tokens } from "./lib/constants";
 import CreateTableModal from "./ui/CreateTableModal";
 
 function App() {
@@ -49,6 +49,13 @@ function App() {
 
   const { data: tableInfo } = useReadContracts({ contracts: tableReads });
 
+  const getTokenName = (address: string) => {
+    const pair = Object.entries(tokens).find(
+      ([_, value]) => value.address == address
+    );
+    return pair?.[0] ?? "ETH";
+  };
+
   return (
     <>
       <div>
@@ -66,12 +73,13 @@ function App() {
                   >
                     <div>
                       <div className="b">Token</div>
-                      {info[0]}
+                      {getTokenName(info[0])}
                     </div>
                     <div>
                       <h3>Players</h3>
                       {info[1]}
                     </div>
+                    <div>{tables[index]}</div>
                   </a>
                 );
               })}

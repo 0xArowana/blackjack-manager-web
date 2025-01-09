@@ -3,3 +3,8 @@ export enum DoubleRule {
   NineToEleven,
   TenToEleven,
 }
+
+export type Token = {
+  address: string;
+  precision: number;
+};

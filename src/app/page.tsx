@@ -17,19 +17,26 @@ function App() {
   const isConnected = account.status === "connected";
   const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>();
 
-  // useWatchContractEvent({
-  //   address,
-  //   abi: pitAbi,
-  //   eventName: 'TableCreated',
-  //   onLogs: (logs) => console.log("Table Created", logs),
-  //   onError: (error) => console.log("Error", error)
-  // })
-
-  const { data: tables, error: err } = useReadContract({
+  const {
+    data: tables,
+    error: err,
+    refetch: refetchTables,
+  } = useReadContract({
     address: pitAddress,
     abi: pitAbi,
     functionName: "getTables",
     args: [account.address],
+  });
+
+  useWatchContractEvent({
+    address: pitAddress,
+    abi: pitAbi,
+    eventName: "TableCreated",
+    onLogs: (logs) => {
+      console.log("Table Created", logs);
+      refetchTables();
+    },
+    onError: (error) => console.log("Error", error),
   });
 
   useEffect(() => {
@@ -58,42 +65,43 @@ function App() {
 
   return (
     <>
-      <div>
+      <div className="flex justify-center">
         {isConnected ? (
-          <>
-            <div>
-              <h1>Tables</h1>
+          <div className="flex flex-col gap-4 w-9/12">
+            <h1>Tables</h1>
+            <div className="flex flex-wrap gap-4">
               {tableInfo?.map((table, index) => {
                 const info: any = table.result;
+                const tableAddress = (tables as string[])[index];
+
                 return (
                   <a
-                    className="flex flex-col max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
+                    className="flex flex-col w-60 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
                     key={`table-card-${index}`}
                     href="#"
                   >
-                    <div>
-                      <div className="b">Token</div>
-                      {getTokenName(info[0])}
+                    <div
+                      className="tooltip before:max-w-none"
+                      data-tip={tableAddress}
+                    >
+                      <div className="truncate">{tableAddress}</div>
                     </div>
-                    <div>
-                      <h3>Players</h3>
-                      {info[1]}
-                    </div>
-                    <div>{tables[index]}</div>
+                    <div>{`Token = ${getTokenName(info[0])}`}</div>
+                    <div>{`Players = ${info[1]}`}</div>
                   </a>
                 );
               })}
             </div>
             <button
               type="button"
-              className="btn btn-primary rounded-2xl"
+              className="btn btn-primary rounded-2xl mt-8"
               onClick={() => {
                 document.getElementById("create_table_modal")?.showModal();
               }}
             >
               Create Table
             </button>
-          </>
+          </div>
         ) : (
           <div>Please connect your wallet</div>
         )}

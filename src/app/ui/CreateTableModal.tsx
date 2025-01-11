@@ -401,7 +401,15 @@ const CreateTableModal = () => {
                 ],
               },
               {
-                onError: (e) => console.log(e),
+                onError: (e) => {
+                  console.log(e);
+                },
+                onSuccess: () => {
+                  document.getElementById("create_table_modal")?.close();
+                },
+                onSettled: () => {
+                  setLoading(false);
+                },
               }
             );
           }}

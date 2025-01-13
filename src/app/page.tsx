@@ -78,7 +78,7 @@ function App() {
                   <a
                     className="flex flex-col w-60 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
                     key={`table-card-${index}`}
-                    href="#"
+                    href={`/table/${tableAddress}`}
                   >
                     <div
                       className="tooltip before:max-w-none"

@@ -12,7 +12,7 @@ import { ContractFunctionParameters } from "viem";
 import { pitAddress, tokens } from "./lib/constants";
 import CreateTableModal from "./ui/CreateTableModal";
 
-function App() {
+const App = () => {
   const account = useAccount();
   const isConnected = account.status === "connected";
   const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>();
@@ -54,7 +54,7 @@ function App() {
     setTableReads(reads);
   }, [tables]);
 
-  const { data: tableInfo } = useReadContracts({ contracts: tableReads });
+  const { data: tableInfos } = useReadContracts({ contracts: tableReads });
 
   const getTokenName = (address: string) => {
     const pair = Object.entries(tokens).find(
@@ -70,8 +70,9 @@ function App() {
           <div className="flex flex-col gap-4 w-9/12">
             <h1>Tables</h1>
             <div className="flex flex-wrap gap-4">
-              {tableInfo?.map((table, index) => {
-                const info: any = table.result;
+              {tableInfos?.map((tableInfo, index) => {
+                const info: any = tableInfo.result;
+
                 const tableAddress = (tables as string[])[index];
 
                 return (
@@ -86,8 +87,8 @@ function App() {
                     >
                       <div className="truncate">{tableAddress}</div>
                     </div>
-                    <div>{`Token = ${getTokenName(info[0])}`}</div>
-                    <div>{`Players = ${info[1]}`}</div>
+                    <div>{`Token = ${getTokenName(info.token)}`}</div>
+                    <div>{`Players = ${info.players.length}`}</div>
                   </a>
                 );
               })}
@@ -109,6 +110,6 @@ function App() {
       <CreateTableModal />
     </>
   );
-}
+};
 
 export default App;

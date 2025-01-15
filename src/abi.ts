@@ -771,66 +771,14 @@ export const tableAbi = [
         internalType: "struct Table.TableInfo",
         components: [
           {
-            name: "token",
+            name: "manager",
             type: "address",
             internalType: "address",
           },
           {
-            name: "rules",
-            type: "tuple",
-            internalType: "struct Table.Rules",
-            components: [
-              {
-                name: "deckCount",
-                type: "uint8",
-                internalType: "uint8",
-              },
-              {
-                name: "dealerHitOnSoft17",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "allowDoubleAfterSplit",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "doubleRule",
-                type: "uint8",
-                internalType: "enum Table.DoubleRule",
-              },
-              {
-                name: "maxResplitHands",
-                type: "uint8",
-                internalType: "uint8",
-              },
-              {
-                name: "allowResplitAces",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "allowHitSplitAces",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "allowLateSurrender",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "allowInsurance",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "sixToFive",
-                type: "bool",
-                internalType: "bool",
-              },
-            ],
+            name: "token",
+            type: "address",
+            internalType: "address",
           },
           {
             name: "gameStatus",
@@ -895,6 +843,68 @@ export const tableAbi = [
                 internalType: "uint256",
               },
             ],
+          },
+          {
+            name: "rules",
+            type: "tuple",
+            internalType: "struct Table.Rules",
+            components: [
+              {
+                name: "deckCount",
+                type: "uint8",
+                internalType: "uint8",
+              },
+              {
+                name: "dealerHitOnSoft17",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "allowDoubleAfterSplit",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "doubleRule",
+                type: "uint8",
+                internalType: "enum Table.DoubleRule",
+              },
+              {
+                name: "maxResplitHands",
+                type: "uint8",
+                internalType: "uint8",
+              },
+              {
+                name: "allowResplitAces",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "allowHitSplitAces",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "allowLateSurrender",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "allowInsurance",
+                type: "bool",
+                internalType: "bool",
+              },
+              {
+                name: "sixToFive",
+                type: "bool",
+                internalType: "bool",
+              },
+            ],
+          },
+          {
+            name: "maxPlayers",
+            type: "uint8",
+            internalType: "uint8",
           },
         ],
       },

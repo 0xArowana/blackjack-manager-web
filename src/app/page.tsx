@@ -72,7 +72,6 @@ const App = () => {
             <div className="flex flex-wrap gap-4">
               {tableInfos?.map((tableInfo, index) => {
                 const info: any = tableInfo.result;
-
                 const tableAddress = (tables as string[])[index];
 
                 return (

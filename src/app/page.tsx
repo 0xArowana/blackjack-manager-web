@@ -1,21 +1,14 @@
 "use client";
 
-import {
-  useAccount,
-  useReadContract,
-  useReadContracts,
-  useWatchContractEvent,
-} from "wagmi";
-import { pitAbi, tableAbi } from "../abi";
-import { useEffect, useState } from "react";
-import { ContractFunctionParameters } from "viem";
+import { useAccount, useReadContract, useWatchContractEvent } from "wagmi";
+import { pitAbi } from "../abi";
 import { pitAddress, tokens } from "./lib/constants";
 import CreateTableModal from "./ui/CreateTableModal";
+import { TableInfo } from "./lib/definitions";
 
 const App = () => {
   const account = useAccount();
   const isConnected = account.status === "connected";
-  const [tableReads, setTableReads] = useState<ContractFunctionParameters[]>();
 
   const {
     data: tables,
@@ -24,7 +17,7 @@ const App = () => {
   } = useReadContract({
     address: pitAddress,
     abi: pitAbi,
-    functionName: "getTables",
+    functionName: "getManagerTableInfo",
     args: [account.address],
   });
 
@@ -39,23 +32,6 @@ const App = () => {
     onError: (error) => console.log("Error", error),
   });
 
-  useEffect(() => {
-    const reads: ContractFunctionParameters[] = [];
-
-    (tables as string[])?.forEach((address) => {
-      const contract: any = {
-        address,
-        abi: tableAbi,
-        functionName: "getTableInfo",
-      };
-      reads.push(contract);
-    });
-
-    setTableReads(reads);
-  }, [tables]);
-
-  const { data: tableInfos } = useReadContracts({ contracts: tableReads });
-
   const getTokenName = (address: string) => {
     const pair = Object.entries(tokens).find(
       ([_, value]) => value.address == address
@@ -63,31 +39,30 @@ const App = () => {
     return pair?.[0] ?? "ETH";
   };
 
+  console.log("tables", tables);
+
   return (
     <>
+      MANAGER
       <div className="flex justify-center">
         {isConnected ? (
           <div className="flex flex-col gap-4 w-9/12">
             <h1>Tables</h1>
             <div className="flex flex-wrap gap-4">
-              {tableInfos?.map((tableInfo, index) => {
-                const info: any = tableInfo.result;
-                const tableAddress = (tables as string[])[index];
+              {(tables as TableInfo[])?.map((table, index) => {
+                const { id, token, seats } = table;
 
                 return (
                   <a
                     className="flex flex-col w-60 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 gap-2"
                     key={`table-card-${index}`}
-                    href={`/table/${tableAddress}`}
+                    href={`/table/${id}`}
                   >
-                    <div
-                      className="tooltip before:max-w-none"
-                      data-tip={tableAddress}
-                    >
-                      <div className="truncate">{tableAddress}</div>
+                    <div className="tooltip before:max-w-none" data-tip={id}>
+                      <div className="truncate">{id}</div>
                     </div>
-                    <div>{`Token = ${getTokenName(info.token)}`}</div>
-                    <div>{`Players = ${info.players.length}`}</div>
+                    <div>{`Token = ${getTokenName(token)}`}</div>
+                    <div>{`Players = ${seats.length}`}</div>
                   </a>
                 );
               })}

@@ -18,7 +18,6 @@ const Table = ({ params }: TableProps) => {
   const account = useAccount();
   const { writeContract } = useWriteContract();
   const [tableAddress, setTableAddress] = useState<Address>();
-  const [spots, setSpots] = useState<(PlayerState | undefined)[]>([]);
   const [startGameLoading, setStartGameLoading] = useState(false);
 
   useEffect(() => {
@@ -35,21 +34,6 @@ const Table = ({ params }: TableProps) => {
   });
 
   const tableInfo = data as TableInfo;
-
-  useEffect(() => {
-    if (!tableInfo) return;
-
-    const newSpots: (PlayerState | undefined)[] = [];
-
-    for (let i = 0; i < tableInfo.maxPlayers; i++) {
-      const spot = tableInfo.playerStates.find((p) => p.seat === i + 1);
-      newSpots.push(spot);
-    }
-
-    console.log("new spots", newSpots);
-
-    setSpots(newSpots);
-  }, [tableInfo]);
 
   if (!tableAddress || !tableInfo) {
     return <div className="loading loading-spinner loading-lg h-full"></div>;
@@ -97,13 +81,15 @@ const Table = ({ params }: TableProps) => {
         </button>
       )}
       <div className="flex flex-row gap-4 mt-10">
-        {spots?.map((spot, index) => {
+        {Array.from(Array(tableInfo.seatCount).keys()).map((index) => {
+          const seat = tableInfo.seats[index];
+
           return (
             <div
               className="flex flex-col p-6 bg-white border border-gray-200 rounded-lg shadow gap-2"
               key={`table-spot-${index}`}
             >
-              {!spot ? "EMPTY" : "SOMEBODY"}
+              {!seat ? "EMPTY" : "SOMEBODY"}
             </div>
           );
         })}

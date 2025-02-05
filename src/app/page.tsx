@@ -2,9 +2,9 @@
 
 import { useAccount, useReadContract, useWatchContractEvent } from "wagmi";
 import { pitAbi } from "../abi";
-import { pitAddress, tokens } from "./lib/constants";
+import { pitAddress } from "./lib/constants";
 import CreateTableModal from "./ui/CreateTableModal";
-import { TableInfo } from "./lib/definitions";
+import { TableInfo, TokenInfo } from "./lib/definitions";
 
 const App = () => {
   const account = useAccount();
@@ -12,12 +12,23 @@ const App = () => {
 
   const {
     data: tables,
-    error: err,
+    error: tablesError,
     refetch: refetchTables,
   } = useReadContract({
     address: pitAddress,
     abi: pitAbi,
     functionName: "getManagerTableInfo",
+    args: [account.address],
+  });
+
+  const {
+    data: tokens,
+    error: tokensError,
+    refetch: refetchTokens,
+  } = useReadContract({
+    address: pitAddress,
+    abi: pitAbi,
+    functionName: "getManagerTokenInfo",
     args: [account.address],
   });
 
@@ -33,13 +44,12 @@ const App = () => {
   });
 
   const getTokenName = (address: string) => {
-    const pair = Object.entries(tokens).find(
-      ([_, value]) => value.address == address
-    );
-    return pair?.[0] ?? "ETH";
+    const token = (tokens as TokenInfo[]).find((t) => t.id === address);
+    return token?.symbol ?? "ETH";
   };
 
   console.log("tables", tables);
+  console.log("token states", tokens);
 
   return (
     <>
@@ -81,7 +91,7 @@ const App = () => {
           <div>Please connect your wallet</div>
         )}
       </div>
-      <CreateTableModal />
+      <CreateTableModal tokenStates={tokens as TokenInfo[]} />
     </>
   );
 };

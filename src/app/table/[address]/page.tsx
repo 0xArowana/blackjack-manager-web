@@ -2,13 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { tableAbi } from "../../../abi";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useWatchContractEvent,
+} from "wagmi";
 import {
   Address,
   GameStatus,
   PlayerState,
   TableInfo,
 } from "../../lib/definitions";
+import { zeroAddress } from "viem";
 
 interface TableProps {
   params: Promise<{ address: string }>;
@@ -33,6 +39,17 @@ const Table = ({ params }: TableProps) => {
     functionName: "getTableInfo",
   });
 
+  useWatchContractEvent({
+    address: tableAddress,
+    abi: tableAbi,
+    eventName: "GameStarted",
+    onLogs: (logs) => {
+      console.log("Game started", logs);
+      refetch();
+    },
+    onError: (error) => console.log("Error", error),
+  });
+
   const tableInfo = data as TableInfo;
 
   if (!tableAddress || !tableInfo) {
@@ -41,6 +58,8 @@ const Table = ({ params }: TableProps) => {
 
   const isManager = tableInfo.manager === account.address;
   const isInactive = tableInfo.gameStatus === GameStatus.Inactive;
+
+  console.log("table info", tableInfo);
 
   return (
     <div>
@@ -81,15 +100,15 @@ const Table = ({ params }: TableProps) => {
         </button>
       )}
       <div className="flex flex-row gap-4 mt-10">
-        {Array.from(Array(tableInfo.seatCount).keys()).map((index) => {
-          const seat = tableInfo.seats[index];
+        {tableInfo.seats.map((seat, index) => {
+          const isEmpty = seat.player === zeroAddress;
 
           return (
             <div
-              className="flex flex-col p-6 bg-white border border-gray-200 rounded-lg shadow gap-2"
+              className="flex flex-col p-6 bg-white border border-gray-200 rounded-lg shadow gap-2 truncate w-32"
               key={`table-spot-${index}`}
             >
-              {!seat ? "EMPTY" : "SOMEBODY"}
+              {isEmpty ? "EMPTY" : seat.player}
             </div>
           );
         })}

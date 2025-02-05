@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import { useWriteContract } from "wagmi";
 import { zeroAddress } from "viem";
-import { DoubleRule } from "../lib/definitions";
+import { DoubleRule, TokenInfo } from "../lib/definitions";
 import { Close } from "../ui/Icons";
 import { pitAbi } from "../../abi";
-import { pitAddress, tokens } from "../lib/constants";
+import { pitAddress } from "../lib/constants";
 
-const CreateTableModal = () => {
+const CreateTableModal: FC<{ tokenInfo: TokenInfo[] }> = ({ tokenInfo }) => {
   const { writeContract } = useWriteContract();
 
   const [maxPlayers, setMaxPlayers] = useState(7);
@@ -26,7 +26,38 @@ const CreateTableModal = () => {
   const [allowInsurance, setAllowInsurance] = useState(false);
   const [isSixToFivePayout, setIsSixToFivePayout] = useState(false);
   const [isBetRangeInvalid, setIsBetRangeInvalid] = useState(false);
+  const [isUnderfunded, setIsUnderfunded] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = tokenInfo.find((t) => t.symbol === currency);
+    if (!token || !maxBet) return;
+
+    const availableBalance = token.balance - token.maxPayout;
+    const maxBetTotal = maxBet * maxPlayers;
+    const factor = isSixToFivePayout ? 5 : 4;
+    let maxPayout = (maxBetTotal * 6) / factor;
+
+    if (allowDoubleAfterSplit) {
+      maxPayout *= 2 * maxResplitHands;
+    } else {
+      maxPayout *= maxResplitHands + 1;
+    }
+
+    setIsUnderfunded(availableBalance < maxPayout);
+  }, [
+    tokenInfo,
+    currency,
+    maxBet,
+    maxPlayers,
+    isSixToFivePayout,
+    allowDoubleAfterSplit,
+    maxResplitHands,
+  ]);
+
+  const currencies = useMemo(() => {
+    return ["ETH", ...tokenInfo.map((t) => t.symbol)];
+  }, [tokenInfo]);
 
   const getDoubleRuleText = (rule: DoubleRule) => {
     switch (rule) {
@@ -130,7 +161,7 @@ const CreateTableModal = () => {
                 tabIndex={0}
                 className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow"
               >
-                {["ETH", ...Object.keys(tokens)].map((c) => (
+                {currencies.map((c) => (
                   <li onClick={() => onSelectCurrency(c)}>
                     <a>{c}</a>
                   </li>
@@ -376,6 +407,8 @@ const CreateTableModal = () => {
             }
 
             setLoading(true);
+
+            console.log("address", token?.address);
 
             writeContract(
               {
